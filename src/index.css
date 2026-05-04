@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Mazzard H';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('https://db.onlinewebfonts.com/t/eb5b5ee332420add9a40ee988cb6ac37.woff2') format('woff2'),
+    url('https://db.onlinewebfonts.com/t/eb5b5ee332420add9a40ee988cb6ac37.woff') format('woff'),
+    url('https://db.onlinewebfonts.com/t/eb5b5ee332420add9a40ee988cb6ac37.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mazzard H';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src:
+    url('https://db.onlinewebfonts.com/t/875fffdfa62169a0f131e90f37f1faf4.woff2') format('woff2'),
+    url('https://db.onlinewebfonts.com/t/875fffdfa62169a0f131e90f37f1faf4.woff') format('woff'),
+    url('https://db.onlinewebfonts.com/t/875fffdfa62169a0f131e90f37f1faf4.ttf') format('truetype');
+}
+
+@layer base {
+  html,
+  body,
+  * {
+    font-family: 'Mazzard H', sans-serif;
+  }
+
+  body {
+    @apply m-0 antialiased;
+  }
+}
+
+@keyframes heroTitleReveal {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.975);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.hero-main-title {
+  animation: heroTitleReveal 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
