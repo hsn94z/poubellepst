@@ -13,7 +13,7 @@ const members: Member[] = [
   {
     name: 'Ramy',
     role: 'Responsable IA',
-    photo: '/ramy.webp',
+    photo: '/Image.jpg',
   },
   {
     name: 'Hassan',
