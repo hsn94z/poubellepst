@@ -4,7 +4,7 @@ import { ContactButton } from './ContactButton'
 
 const navLinks = [
   { label: 'Accueil', href: '#hero' },
-  { label: 'Matériel', href: '#what-we-build' },
+  { label: 'Matériel', href: '#materiel' },
   { label: 'Histoire', href: '#our-method' },
   { label: 'Contact', href: '#contact' },
 ] as const

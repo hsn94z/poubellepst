@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FreedomSection } from './components/FreedomSection'
+import { HardwareSection } from './components/HardwareSection'
 import { Hero } from './components/Hero'
 import { MembersSection } from './components/MembersSection'
 import { Navbar } from './components/Navbar'
@@ -13,6 +14,7 @@ export default function App() {
       <Navbar revealProgress={navRevealProgress} />
       <Hero onNavRevealProgress={setNavRevealProgress} />
       <TrustedSection />
+      <HardwareSection />
       <FreedomSection />
       <MembersSection />
     </main>
