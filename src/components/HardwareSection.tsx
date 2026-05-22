@@ -20,11 +20,11 @@ const hardwareItems = [
     imageAlt: 'Module caméra Raspberry Pi',
   },
   {
-    title: 'Carte microSD 64 Go',
+    title: "Bloc d'alimentation fixe",
     description:
-      "Stocke le système d'exploitation, les données collectées et les modèles d'IA.",
-    image: '/hardware/microsd.png',
-    imageAlt: 'Carte microSD SanDisk 64 Go',
+      'Alimente de manière stable et sécurisée le Raspberry Pi et ses périphériques.',
+    image: '/hardware/alimentation.png',
+    imageAlt: 'Bloc d alimentation Raspberry Pi officiel',
   },
   {
     title: 'Micro-servomoteur MG996R',
@@ -34,11 +34,11 @@ const hardwareItems = [
     imageAlt: 'Micro-servomoteur MG996R',
   },
   {
-    title: "Bloc d'alimentation fixe",
+    title: 'Carte microSD 64 Go',
     description:
-      'Alimente de manière stable et sécurisée le Raspberry Pi et ses périphériques.',
-    image: '/hardware/alimentation.png',
-    imageAlt: 'Bloc d alimentation Raspberry Pi officiel',
+      "Stocke le système d'exploitation, les données collectées et les modèles d'IA.",
+    image: '/hardware/microsd.png',
+    imageAlt: 'Carte microSD SanDisk 64 Go',
   },
 ] as const
 
