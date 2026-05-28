@@ -4,6 +4,7 @@ import { HardwareSection } from './components/HardwareSection'
 import { Hero } from './components/Hero'
 import { MembersSection } from './components/MembersSection'
 import { Navbar } from './components/Navbar'
+import { StatisticsSection } from './components/StatisticsSection'
 import { TrustedSection } from './components/TrustedSection'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
       <HardwareSection />
       <FreedomSection />
       <MembersSection />
+      <StatisticsSection />
     </main>
   )
 }
