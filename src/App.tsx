@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from 'react'
+import { DetectionSection } from './components/DetectionSection'
 import { FreedomSection } from './components/FreedomSection'
 import { HardwareSection } from './components/HardwareSection'
 import { Hero } from './components/Hero'
@@ -34,6 +35,7 @@ export default function App() {
       <TrustedSection />
       <HardwareSection />
       <FreedomSection />
+      <DetectionSection />
       <MembersSection />
       <Suspense fallback={<StatsFallback />}>
         <StatisticsSection />
