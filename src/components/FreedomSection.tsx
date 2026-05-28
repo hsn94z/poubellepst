@@ -36,8 +36,13 @@ function StoryCard({
       }`}
     >
       <div className="flex items-center justify-center p-4 sm:p-6">
-        <div className="w-full overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white">
-          <img src={image} alt={imageAlt} className="h-auto w-full object-cover" loading="lazy" />
+        <div className="flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white p-2 sm:min-h-[320px]">
+          <img
+            src={image}
+            alt={imageAlt}
+            className="h-full max-h-[420px] w-full object-contain"
+            loading="lazy"
+          />
         </div>
       </div>
 
