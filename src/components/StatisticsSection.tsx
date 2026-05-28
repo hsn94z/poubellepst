@@ -188,8 +188,13 @@ export function StatisticsSection() {
           <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-4 sm:p-6 shadow-[0_8px_28px_rgba(63,74,126,0.08)]">
             <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Evolution journaliere</h3>
             <p className="mt-1 text-sm text-[rgb(66,123,101)]">Nombre de dechets collectes par jour.</p>
-            <div className="mt-4 h-[300px] w-full">
-              <ResponsiveContainer>
+            <div className="mt-4 h-[300px] w-full min-w-0">
+              {dailySeries.length === 0 ? (
+                <p className="flex h-full items-center justify-center text-sm text-[rgb(66,123,101)]">
+                  Aucune donnee pour cette periode.
+                </p>
+              ) : (
+              <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={dailySeries}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.12)" />
                   <XAxis dataKey="date" tick={{ fill: '#2E5D4B', fontSize: 12 }} />
@@ -206,14 +211,20 @@ export function StatisticsSection() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+              )}
             </div>
           </article>
 
           <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-4 sm:p-6 shadow-[0_8px_28px_rgba(63,74,126,0.08)]">
             <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Repartition par type</h3>
             <p className="mt-1 text-sm text-[rgb(66,123,101)]">Plastique, papier, verre, metal, etc.</p>
-            <div className="mt-4 h-[300px] w-full">
-              <ResponsiveContainer>
+            <div className="mt-4 h-[300px] w-full min-w-0">
+              {typeSeries.length === 0 ? (
+                <p className="flex h-full items-center justify-center text-sm text-[rgb(66,123,101)]">
+                  Aucune donnee pour cette periode.
+                </p>
+              ) : (
+              <ResponsiveContainer width="100%" height="100%">
                 {distributionMode === 'bar' ? (
                   <BarChart data={typeSeries}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.12)" />
@@ -236,9 +247,7 @@ export function StatisticsSection() {
                       cx="50%"
                       cy="50%"
                       outerRadius={100}
-                      label={({ name, value }: { name?: string | number; value?: string | number }) =>
-                        `${prettyType(String(name ?? ''))} (${value ?? 0})`
-                      }
+                      label
                       animationDuration={700}
                     >
                       {typeSeries.map((entry: TypePoint, index) => (
@@ -248,6 +257,7 @@ export function StatisticsSection() {
                   </PieChart>
                 )}
               </ResponsiveContainer>
+              )}
             </div>
           </article>
         </div>
