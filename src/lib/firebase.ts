@@ -11,3 +11,4 @@ const firebaseApp = initializeApp({
 
 export const firebaseDatabase = getDatabase(firebaseApp)
 export const FIREBASE_OUVERTURES_PATH = 'ouvertures'
+export const FIREBASE_POUBELLES_PATH = 'poubelles'

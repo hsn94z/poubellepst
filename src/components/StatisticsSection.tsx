@@ -14,14 +14,17 @@ import {
   YAxis,
 } from 'recharts'
 import {
+  buildBinStatuses,
   buildDailySeries,
   buildSummary,
   buildTypeSeries,
   filterByDateRange,
+  BIN_CAPACITY,
+  type BinStatus,
   type TypePoint,
   type WasteRecord,
 } from '../lib/wasteStats'
-import { subscribeToWasteRecords } from '../lib/firebaseWaste'
+import { resetBin, subscribeToBinResets, subscribeToWasteRecords } from '../lib/firebaseWaste'
 
 const gradientB =
   'linear-gradient(90deg, rgb(0,196,140), rgb(0,227,163) 50%, rgb(152,244,76))'
@@ -38,12 +41,91 @@ function prettyRecord(record: WasteRecord | null): string {
   return `${record.date} ${record.time} - ${prettyType(record.type)}`
 }
 
+function fillBarColor(count: number, capacity: number): string {
+  const ratio = count / capacity
+  if (ratio >= 1) return '#E5484D'
+  if (ratio >= 0.7) return '#F5A524'
+  return '#00C48C'
+}
+
+function BinStatusCard({
+  bin,
+  onReset,
+  resetting,
+}: {
+  bin: BinStatus
+  onReset: (type: string) => void
+  resetting: boolean
+}) {
+  const barColor = fillBarColor(bin.count, bin.capacity)
+
+  return (
+    <article
+      className={`rounded-2xl border p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1 ${
+        bin.isFull
+          ? 'border-[rgba(229,72,77,0.35)] bg-[linear-gradient(135deg,rgba(255,244,244,0.95),rgba(255,255,255,0.98))]'
+          : 'border-[rgba(12,74,56,0.1)] bg-white'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm text-[rgb(66,123,101)]">Poubelle</p>
+          <p className="mt-1 text-2xl font-medium text-[rgb(12,74,56)]">{prettyType(bin.type)}</p>
+        </div>
+        <div
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            bin.isFull
+              ? 'bg-[rgba(229,72,77,0.12)] text-[rgb(180,35,40)]'
+              : 'bg-[rgb(226,249,238)] text-[rgb(12,74,56)]'
+          }`}
+        >
+          {bin.count}/{bin.capacity}
+        </div>
+      </div>
+
+      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[rgb(236,246,241)]">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${bin.fillPercent}%`, backgroundColor: barColor }}
+        />
+      </div>
+
+      {bin.isFull ? (
+        <div className="mt-4 space-y-3">
+          <p className="flex items-start gap-2 text-sm leading-relaxed text-[rgb(140,35,40)]">
+            <span aria-hidden className="mt-0.5 text-base">
+              ⚠
+            </span>
+            <span>
+              Cette poubelle a atteint {BIN_CAPACITY} déchets. Il faut la vider et la changer.
+            </span>
+          </p>
+          <button
+            type="button"
+            onClick={() => onReset(bin.type)}
+            disabled={resetting}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[rgb(12,74,56)] px-4 py-3 text-sm font-medium text-white transition hover:bg-[rgb(8,56,42)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {resetting ? 'Réinitialisation...' : 'Poubelle changée'}
+          </button>
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-[rgb(66,123,101)]">
+          {bin.capacity - bin.count} déchets restants avant alerte.
+        </p>
+      )}
+    </article>
+  )
+}
+
 export function StatisticsSection() {
   const [records, setRecords] = useState<WasteRecord[]>([])
+  const [binResets, setBinResets] = useState<Record<string, string>>({})
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [distributionMode, setDistributionMode] = useState<'bar' | 'pie'>('bar')
   const [loading, setLoading] = useState(true)
+  const [resettingType, setResettingType] = useState<string | null>(null)
 
   useEffect(() => {
     // Ecoute temps reel Firebase : les graphiques Recharts se mettent a jour via les props `data`.
@@ -60,6 +142,23 @@ export function StatisticsSection() {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    const unsubscribe = subscribeToBinResets((nextResets) => {
+      setBinResets(nextResets)
+    })
+
+    return unsubscribe
+  }, [])
+
+  const handleBinReset = async (type: string) => {
+    setResettingType(type)
+    try {
+      await resetBin(type)
+    } finally {
+      setResettingType(null)
+    }
+  }
+
   const filtered = useMemo(
     () => filterByDateRange(records, startDate || undefined, endDate || undefined),
     [records, startDate, endDate],
@@ -68,6 +167,8 @@ export function StatisticsSection() {
   const dailySeries = useMemo(() => buildDailySeries(filtered), [filtered])
   const typeSeries = useMemo(() => buildTypeSeries(filtered), [filtered])
   const summary = useMemo(() => buildSummary(filtered), [filtered])
+  const binStatuses = useMemo(() => buildBinStatuses(records, binResets), [records, binResets])
+  const fullBins = useMemo(() => binStatuses.filter((bin) => bin.isFull), [binStatuses])
 
   return (
     <section
@@ -101,6 +202,62 @@ export function StatisticsSection() {
             type et indicateurs cles.
           </p>
         </header>
+
+        {fullBins.length > 0 ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-[rgba(229,72,77,0.35)] bg-[linear-gradient(135deg,rgba(255,244,244,0.95),rgba(255,252,250,0.98))] p-5 shadow-[0_8px_28px_rgba(229,72,77,0.12)]"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium uppercase tracking-wide text-[rgb(180,35,40)]">
+                  Alerte maintenance
+                </p>
+                <p className="mt-1 text-lg font-medium text-[rgb(12,74,56)]">
+                  {fullBins.length === 1
+                    ? 'Une poubelle doit être changée'
+                    : `${fullBins.length} poubelles doivent être changées`}
+                </p>
+                <p className="mt-1 text-sm text-[rgb(66,123,101)]">
+                  Seuil atteint : {BIN_CAPACITY} déchets par compartiment. Videz la poubelle puis
+                  cliquez sur « Poubelle changée » pour remettre le compteur à 0.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {fullBins.map((bin) => (
+                  <span
+                    key={bin.type}
+                    className="rounded-full bg-[rgba(229,72,77,0.12)] px-3 py-1 text-sm font-medium text-[rgb(180,35,40)]"
+                  >
+                    {prettyType(bin.type)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {binStatuses.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <div>
+              <h3 className="text-xl font-medium text-[rgb(12,74,56)]">État des poubelles</h3>
+              <p className="mt-1 text-sm text-[rgb(66,123,101)]">
+                Suivi en temps réel du remplissage par type de déchet (alerte à {BIN_CAPACITY}{' '}
+                déchets).
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {binStatuses.map((bin) => (
+                <BinStatusCard
+                  key={bin.type}
+                  bin={bin}
+                  onReset={handleBinReset}
+                  resetting={resettingType === bin.type}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1">

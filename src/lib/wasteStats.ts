@@ -23,6 +23,17 @@ export type WasteSummary = {
   todayCount: number
 }
 
+export const BIN_CAPACITY = 10
+
+export type BinStatus = {
+  type: string
+  count: number
+  capacity: number
+  isFull: boolean
+  fillPercent: number
+  lastResetAt: Date | null
+}
+
 const LINE_REGEX = /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})\s+(.+)$/
 
 function pad2(value: number): string {
@@ -151,4 +162,36 @@ export function buildSummary(records: WasteRecord[]): WasteSummary {
     lastRecord,
     todayCount: records.filter((r) => r.date === today).length,
   }
+}
+
+export function buildBinStatuses(
+  records: WasteRecord[],
+  resets: Record<string, string>,
+): BinStatus[] {
+  const types = new Set<string>()
+  for (const record of records) types.add(record.type)
+
+  const statuses: BinStatus[] = []
+
+  for (const type of types) {
+    const lastResetRaw = resets[type]
+    const lastResetAt = lastResetRaw ? new Date(lastResetRaw) : null
+    const cutoff =
+      lastResetAt && !Number.isNaN(lastResetAt.getTime()) ? lastResetAt.getTime() : 0
+
+    const count = records.filter(
+      (record) => record.type === type && record.timestamp.getTime() > cutoff,
+    ).length
+
+    statuses.push({
+      type,
+      count,
+      capacity: BIN_CAPACITY,
+      isFull: count >= BIN_CAPACITY,
+      fillPercent: Math.min(100, Math.round((count / BIN_CAPACITY) * 100)),
+      lastResetAt,
+    })
+  }
+
+  return statuses.sort((a, b) => b.count - a.count)
 }
