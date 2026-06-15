@@ -1,4 +1,5 @@
 export type WasteRecord = {
+  id: string
   date: string
   time: string
   type: string
@@ -24,8 +25,60 @@ export type WasteSummary = {
 
 const LINE_REGEX = /^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})\s+(.+)$/
 
+function pad2(value: number): string {
+  return String(value).padStart(2, '0')
+}
+
+function localDateString(date: Date): string {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
+}
+
+function localTimeString(date: Date): string {
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`
+}
+
+function normalizeType(rawType: string): string {
+  return rawType.trim().toLowerCase()
+}
+
 function toTimestamp(date: string, time: string): Date {
   return new Date(`${date}T${time}:00`)
+}
+
+type FirebaseOuverture = {
+  categorie?: string
+  date?: string
+}
+
+/**
+ * Convertit le noeud Firebase `ouvertures` en liste de detections.
+ * Structure attendue : { "-pushId": { categorie, date }, ... }
+ */
+export function parseFirebaseOuvertures(
+  data: Record<string, FirebaseOuverture> | null,
+): WasteRecord[] {
+  if (!data) return []
+
+  const seenIds = new Set<string>()
+  const records: WasteRecord[] = []
+
+  for (const [id, entry] of Object.entries(data)) {
+    if (!entry?.categorie || !entry?.date || seenIds.has(id)) continue
+    seenIds.add(id)
+
+    const timestamp = new Date(entry.date)
+    if (Number.isNaN(timestamp.getTime())) continue
+
+    records.push({
+      id,
+      date: localDateString(timestamp),
+      time: localTimeString(timestamp),
+      type: normalizeType(entry.categorie),
+      timestamp,
+    })
+  }
+
+  return records.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
 }
 
 export function parseWasteText(content: string): WasteRecord[] {
@@ -33,7 +86,7 @@ export function parseWasteText(content: string): WasteRecord[] {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
-    .map((line) => {
+    .map((line, index) => {
       const match = line.match(LINE_REGEX)
       if (!match) return null
 
@@ -43,7 +96,13 @@ export function parseWasteText(content: string): WasteRecord[] {
 
       if (Number.isNaN(timestamp.getTime())) return null
 
-      return { date, time, type, timestamp }
+      return {
+        id: `txt-${date}-${time}-${type}-${index}`,
+        date,
+        time,
+        type,
+        timestamp,
+      }
     })
     .filter((record): record is WasteRecord => record !== null)
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
@@ -83,7 +142,7 @@ export function buildTypeSeries(records: WasteRecord[]): TypePoint[] {
 
 export function buildSummary(records: WasteRecord[]): WasteSummary {
   const typeSeries = buildTypeSeries(records)
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateString(new Date())
   const lastRecord = records.length > 0 ? records[records.length - 1] : null
 
   return {

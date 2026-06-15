@@ -18,10 +18,10 @@ import {
   buildSummary,
   buildTypeSeries,
   filterByDateRange,
-  parseWasteText,
   type TypePoint,
   type WasteRecord,
 } from '../lib/wasteStats'
+import { subscribeToWasteRecords } from '../lib/firebaseWaste'
 
 const gradientB =
   'linear-gradient(90deg, rgb(0,196,140), rgb(0,227,163) 50%, rgb(152,244,76))'
@@ -46,26 +46,18 @@ export function StatisticsSection() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let mounted = true
+    // Ecoute temps reel Firebase : les graphiques Recharts se mettent a jour via les props `data`.
+    const unsubscribe = subscribeToWasteRecords(
+      (nextRecords) => {
+        setRecords(nextRecords)
+        setLoading(false)
+      },
+      () => {
+        setLoading(false)
+      },
+    )
 
-    // Auto-refreshes from the text file so charts stay updated.
-    const loadData = async () => {
-      try {
-        const response = await fetch(`/data/dechets.txt?ts=${Date.now()}`)
-        const text = await response.text()
-        if (!mounted) return
-        setRecords(parseWasteText(text))
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-
-    loadData()
-    const id = window.setInterval(loadData, 30000)
-    return () => {
-      mounted = false
-      window.clearInterval(id)
-    }
+    return unsubscribe
   }, [])
 
   const filtered = useMemo(
