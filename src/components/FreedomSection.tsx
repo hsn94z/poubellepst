@@ -73,7 +73,28 @@ function StoryCard({
   )
 }
 
-function ConstructionPhoto() {
+function ConstructionGallery() {
+  const photos = [
+    {
+      src: '/history/construction-maquette.png',
+      alt: "Maquette de la poubelle connectée en cours de construction dans l'atelier",
+      caption: 'Assemblage de la structure : base en bois, tuyau central et plateau de tri.',
+      featured: true,
+    },
+    {
+      src: '/history/construction-raspberry.png',
+      alt: "Raspberry Pi et câblage électronique à l'intérieur de la maquette",
+      caption: 'Intégration du Raspberry Pi et du câblage GPIO dans le boîtier.',
+    },
+    {
+      src: '/history/construction-plateau.png',
+      alt: 'Plateau de tri avec trappes circulaires, clavier et servomoteur',
+      caption: 'Plateau supérieur : trappes de tri, clavier numérique et servomoteur.',
+    },
+  ] as const
+
+  const [featured, ...others] = photos
+
   return (
     <article className="overflow-hidden rounded-[26px] border border-[rgba(0,166,126,0.2)] bg-[linear-gradient(135deg,rgba(220,245,255,0.85),rgba(255,255,255,0.96))] p-6 shadow-[0_8px_28px_rgba(63,74,126,0.09)] sm:p-8">
       <div className="mx-auto max-w-3xl text-center">
@@ -98,26 +119,45 @@ function ConstructionPhoto() {
           className="m-0 leading-relaxed text-[rgb(26,11,84)]"
           style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}
         >
-          Photo prise pendant l&apos;assemblage : structure en bois, colonne centrale, plateau de
-          tri et câblage électronique. Chaque étape nous rapproche d&apos;un prototype
-          fonctionnel.
+          Quelques photos prises pendant l&apos;assemblage : structure, électronique et mécanique
+          de tri. Chaque étape nous rapproche d&apos;un prototype fonctionnel.
         </p>
       </div>
 
-      <figure className="group mx-auto mt-8 max-w-2xl overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white shadow-[0_4px_24px_rgba(0,60,45,0.06)] transition-transform duration-300 hover:-translate-y-1">
+      <figure className="group mx-auto mt-8 max-w-3xl overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white shadow-[0_4px_24px_rgba(0,60,45,0.06)] transition-transform duration-300 hover:-translate-y-1">
         <div className="overflow-hidden bg-[rgb(248,252,250)]">
           <img
-            src="/history/construction-maquette.png"
-            alt="Maquette de la poubelle connectée en cours de construction dans l'atelier"
+            src={featured.src}
+            alt={featured.alt}
             className="w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             loading="lazy"
           />
         </div>
         <figcaption className="px-5 py-4 text-sm leading-snug text-[rgb(66,123,101)]">
-          Assemblage de la structure : base en bois, tuyau central et plateau de tri avec
-          compartiments circulaires.
+          {featured.caption}
         </figcaption>
       </figure>
+
+      <div className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
+        {others.map((photo) => (
+          <figure
+            key={photo.src}
+            className="group overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white shadow-[0_4px_24px_rgba(0,60,45,0.06)] transition-transform duration-300 hover:-translate-y-1"
+          >
+            <div className="aspect-[4/5] overflow-hidden bg-[rgb(248,252,250)]">
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                loading="lazy"
+              />
+            </div>
+            <figcaption className="px-4 py-3 text-sm leading-snug text-[rgb(66,123,101)] sm:px-5 sm:py-4">
+              {photo.caption}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
     </article>
   )
 }
@@ -167,7 +207,7 @@ export function FreedomSection() {
           ]}
         />
 
-        <ConstructionPhoto />
+        <ConstructionGallery />
       </div>
     </section>
   )
