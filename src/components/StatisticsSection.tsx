@@ -14,121 +14,68 @@ import {
   YAxis,
 } from 'recharts'
 import {
-  buildBinStatuses,
   buildDailySeries,
   buildSummary,
   buildTypeSeries,
   filterByDateRange,
-  BIN_CAPACITY,
-  type BinStatus,
   type TypePoint,
   type WasteRecord,
 } from '../lib/wasteStats'
-import { resetBin, subscribeToBinResets, subscribeToWasteRecords } from '../lib/firebaseWaste'
-
-const gradientB =
-  'linear-gradient(90deg, rgb(0,196,140), rgb(0,227,163) 50%, rgb(152,244,76))'
-
-const chartColors = ['#00C48C', '#00D4AA', '#8EF46B', '#4B88FF', '#7B6DFF', '#FF9E64']
+import { subscribeToWasteRecords } from '../lib/firebaseWaste'
+import { CHART_COLORS, SECTION_PADDING, cardClass, cardHoverClass } from '../lib/theme'
+import { SectionHeader } from './ui/SectionHeader'
 
 function prettyType(type: string): string {
-  if (!type) return '-'
+  if (!type) return '—'
   return `${type[0].toUpperCase()}${type.slice(1)}`
 }
 
 function prettyRecord(record: WasteRecord | null): string {
-  if (!record) return '-'
-  return `${record.date} ${record.time} - ${prettyType(record.type)}`
+  if (!record) return '—'
+  return `${record.date} · ${record.time} · ${prettyType(record.type)}`
 }
 
-function fillBarColor(count: number, capacity: number): string {
-  const ratio = count / capacity
-  if (ratio >= 1) return '#E5484D'
-  if (ratio >= 0.7) return '#F5A524'
-  return '#00C48C'
-}
-
-function BinStatusCard({
-  bin,
-  onReset,
-  resetting,
-}: {
-  bin: BinStatus
-  onReset: (type: string) => void
-  resetting: boolean
-}) {
-  const barColor = fillBarColor(bin.count, bin.capacity)
-
+function StatCard({ label, value, compact }: { label: string; value: string | number; compact?: boolean }) {
   return (
-    <article
-      className={`rounded-2xl border p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1 ${
-        bin.isFull
-          ? 'border-[rgba(229,72,77,0.35)] bg-[linear-gradient(135deg,rgba(255,244,244,0.95),rgba(255,255,255,0.98))]'
-          : 'border-[rgba(12,74,56,0.1)] bg-white'
-      }`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-[rgb(66,123,101)]">Poubelle</p>
-          <p className="mt-1 text-2xl font-medium text-[rgb(12,74,56)]">{prettyType(bin.type)}</p>
-        </div>
-        <div
-          className={`rounded-full px-3 py-1 text-xs font-medium ${
-            bin.isFull
-              ? 'bg-[rgba(229,72,77,0.12)] text-[rgb(180,35,40)]'
-              : 'bg-[rgb(226,249,238)] text-[rgb(12,74,56)]'
-          }`}
-        >
-          {bin.count}/{bin.capacity}
-        </div>
-      </div>
-
-      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[rgb(236,246,241)]">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${bin.fillPercent}%`, backgroundColor: barColor }}
-        />
-      </div>
-
-      {bin.isFull ? (
-        <div className="mt-4 space-y-3">
-          <p className="flex items-start gap-2 text-sm leading-relaxed text-[rgb(140,35,40)]">
-            <span aria-hidden className="mt-0.5 text-base">
-              ⚠
-            </span>
-            <span>
-              Cette poubelle a atteint {BIN_CAPACITY} déchets. Il faut la vider et la changer.
-            </span>
-          </p>
-          <button
-            type="button"
-            onClick={() => onReset(bin.type)}
-            disabled={resetting}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[rgb(12,74,56)] px-4 py-3 text-sm font-medium text-white transition hover:bg-[rgb(8,56,42)] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {resetting ? 'Réinitialisation...' : 'Poubelle changée'}
-          </button>
-        </div>
-      ) : (
-        <p className="mt-3 text-sm text-[rgb(66,123,101)]">
-          {bin.capacity - bin.count} déchets restants avant alerte.
-        </p>
-      )}
+    <article className={`${cardClass} ${cardHoverClass} p-6`}>
+      <p className="text-sm font-medium text-[rgb(66,123,101)]">{label}</p>
+      <p
+        className={`mt-2 font-medium text-[rgb(12,74,56)] ${compact ? 'text-sm leading-snug' : 'text-3xl'}`}
+      >
+        {value}
+      </p>
     </article>
+  )
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: { value: number; name?: string }[]
+  label?: string
+}) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-xl border border-[rgba(12,74,56,0.1)] bg-white px-4 py-3 shadow-[0_8px_24px_rgba(12,74,56,0.12)]">
+      <p className="text-xs font-medium text-[rgb(66,123,101)]">{label}</p>
+      <p className="mt-1 text-sm font-medium text-[rgb(12,74,56)]">
+        {payload[0].value} déchets
+      </p>
+    </div>
   )
 }
 
 export function StatisticsSection() {
   const [records, setRecords] = useState<WasteRecord[]>([])
-  const [binResets, setBinResets] = useState<Record<string, string>>({})
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [distributionMode, setDistributionMode] = useState<'bar' | 'pie'>('bar')
   const [loading, setLoading] = useState(true)
-  const [resettingType, setResettingType] = useState<string | null>(null)
 
   useEffect(() => {
-    // Ecoute temps reel Firebase : les graphiques Recharts se mettent a jour via les props `data`.
     const unsubscribe = subscribeToWasteRecords(
       (nextRecords) => {
         setRecords(nextRecords)
@@ -142,23 +89,6 @@ export function StatisticsSection() {
     return unsubscribe
   }, [])
 
-  useEffect(() => {
-    const unsubscribe = subscribeToBinResets((nextResets) => {
-      setBinResets(nextResets)
-    })
-
-    return unsubscribe
-  }, [])
-
-  const handleBinReset = async (type: string) => {
-    setResettingType(type)
-    try {
-      await resetBin(type)
-    } finally {
-      setResettingType(null)
-    }
-  }
-
   const filtered = useMemo(
     () => filterByDateRange(records, startDate || undefined, endDate || undefined),
     [records, startDate, endDate],
@@ -167,251 +97,189 @@ export function StatisticsSection() {
   const dailySeries = useMemo(() => buildDailySeries(filtered), [filtered])
   const typeSeries = useMemo(() => buildTypeSeries(filtered), [filtered])
   const summary = useMemo(() => buildSummary(filtered), [filtered])
-  const binStatuses = useMemo(() => buildBinStatuses(records, binResets), [records, binResets])
-  const fullBins = useMemo(() => binStatuses.filter((bin) => bin.isFull), [binStatuses])
 
   return (
     <section
       id="stats"
-      className="bg-[rgb(246,255,251)]"
-      style={{ padding: 'clamp(56px, 7vw, 110px) clamp(16px, 3.4vw, 46px)' }}
+      className="scroll-mt-28 bg-[rgb(244,255,250)]"
+      style={{ padding: SECTION_PADDING }}
     >
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-8 sm:gap-10">
-        <header className="flex flex-col items-center gap-4 text-center">
-          <p className="rounded-full bg-[rgb(226,249,238)] px-5 py-2 text-sm font-medium text-[rgb(12,74,56)]">
-            Donnees en temps reel
-          </p>
-          <h2
-            className="font-medium leading-tight text-[rgb(12,74,56)]"
-            style={{ fontSize: 'clamp(28px, 4vw, 52px)', fontWeight: 500 }}
-          >
-            Section{' '}
-            <span
-              style={{
-                backgroundImage: gradientB,
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              Statistiques
-            </span>
-          </h2>
-          <p className="max-w-3xl text-[rgb(66,123,101)]">
-            Visualisez les dechets collectes depuis un fichier texte : evolution, repartition par
-            type et indicateurs cles.
-          </p>
-        </header>
+      <div className="section-container flex flex-col gap-10">
+        <SectionHeader
+          badge="Données en temps réel"
+          title="Statistiques de"
+          titleAccent="tri"
+          description="Visualisez l'évolution des déchets collectés, leur répartition par type et les indicateurs clés du système."
+        />
 
-        {fullBins.length > 0 ? (
-          <div
-            role="alert"
-            className="rounded-2xl border border-[rgba(229,72,77,0.35)] bg-[linear-gradient(135deg,rgba(255,244,244,0.95),rgba(255,252,250,0.98))] p-5 shadow-[0_8px_28px_rgba(229,72,77,0.12)]"
-          >
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium uppercase tracking-wide text-[rgb(180,35,40)]">
-                  Alerte maintenance
-                </p>
-                <p className="mt-1 text-lg font-medium text-[rgb(12,74,56)]">
-                  {fullBins.length === 1
-                    ? 'Une poubelle doit être changée'
-                    : `${fullBins.length} poubelles doivent être changées`}
-                </p>
-                <p className="mt-1 text-sm text-[rgb(66,123,101)]">
-                  Seuil atteint : {BIN_CAPACITY} déchets par compartiment. Videz la poubelle puis
-                  cliquez sur « Poubelle changée » pour remettre le compteur à 0.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {fullBins.map((bin) => (
-                  <span
-                    key={bin.type}
-                    className="rounded-full bg-[rgba(229,72,77,0.12)] px-3 py-1 text-sm font-medium text-[rgb(180,35,40)]"
-                  >
-                    {prettyType(bin.type)}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : null}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="Total déchets" value={summary.total} />
+          <StatCard label="Type le plus fréquent" value={prettyType(summary.mostFrequentType)} />
+          <StatCard label="Dernier enregistrement" value={prettyRecord(summary.lastRecord)} compact />
+          <StatCard label="Collectes aujourd'hui" value={summary.todayCount} />
+        </div>
 
-        {binStatuses.length > 0 ? (
-          <div className="flex flex-col gap-4">
+        <article className={`${cardClass} p-6 sm:p-8`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h3 className="text-xl font-medium text-[rgb(12,74,56)]">État des poubelles</h3>
+              <h3 className="text-lg font-medium text-[rgb(12,74,56)]">Filtres & affichage</h3>
               <p className="mt-1 text-sm text-[rgb(66,123,101)]">
-                Suivi en temps réel du remplissage par type de déchet (alerte à {BIN_CAPACITY}{' '}
-                déchets).
+                Affinez la période analysée et le type de graphique.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {binStatuses.map((bin) => (
-                <BinStatusCard
-                  key={bin.type}
-                  bin={bin}
-                  onReset={handleBinReset}
-                  resetting={resettingType === bin.type}
-                />
+            <div className="inline-flex rounded-xl bg-[rgb(240,250,245)] p-1">
+              {(['bar', 'pie'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setDistributionMode(mode)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    distributionMode === mode
+                      ? 'bg-white text-[rgb(12,74,56)] shadow-sm'
+                      : 'text-[rgb(66,123,101)] hover:text-[rgb(12,74,56)]'
+                  }`}
+                >
+                  {mode === 'bar' ? 'Barres' : 'Camembert'}
+                </button>
               ))}
             </div>
           </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1">
-            <p className="text-sm text-[rgb(66,123,101)]">Total dechets</p>
-            <p className="mt-2 text-3xl font-medium text-[rgb(12,74,56)]">{summary.total}</p>
-          </article>
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1">
-            <p className="text-sm text-[rgb(66,123,101)]">Type le plus frequent</p>
-            <p className="mt-2 text-2xl font-medium text-[rgb(12,74,56)]">
-              {prettyType(summary.mostFrequentType)}
-            </p>
-          </article>
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1">
-            <p className="text-sm text-[rgb(66,123,101)]">Dernier dechet enregistre</p>
-            <p className="mt-2 text-sm font-medium text-[rgb(12,74,56)]">{prettyRecord(summary.lastRecord)}</p>
-          </article>
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-5 shadow-[0_8px_28px_rgba(63,74,126,0.08)] transition-transform hover:-translate-y-1">
-            <p className="text-sm text-[rgb(66,123,101)]">Collectes aujourd hui</p>
-            <p className="mt-2 text-3xl font-medium text-[rgb(12,74,56)]">{summary.todayCount}</p>
-          </article>
-        </div>
-
-        <div className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-4 sm:p-6 shadow-[0_8px_28px_rgba(63,74,126,0.08)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Filtres</h3>
-              <p className="text-sm text-[rgb(66,123,101)]">Affinez la periode et le type de graphique.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDistributionMode('bar')}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
-                  distributionMode === 'bar'
-                    ? 'bg-[rgb(12,74,56)] text-white'
-                    : 'bg-[rgb(240,250,245)] text-[rgb(12,74,56)] hover:bg-[rgb(226,249,238)]'
-                }`}
-              >
-                Barres
-              </button>
-              <button
-                type="button"
-                onClick={() => setDistributionMode('pie')}
-                className={`rounded-lg px-3 py-2 text-sm transition ${
-                  distributionMode === 'pie'
-                    ? 'bg-[rgb(12,74,56)] text-white'
-                    : 'bg-[rgb(240,250,245)] text-[rgb(12,74,56)] hover:bg-[rgb(226,249,238)]'
-                }`}
-              >
-                Camembert
-              </button>
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="flex flex-col gap-1 text-sm text-[rgb(66,123,101)]">
-              Date de debut
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-2 text-sm text-[rgb(66,123,101)]">
+              Date de début
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-lg border border-[rgba(12,74,56,0.2)] px-3 py-2 outline-none transition focus:border-[rgb(0,196,140)]"
+                className="rounded-xl border border-[rgba(12,74,56,0.12)] bg-[rgb(248,252,250)] px-4 py-3 outline-none transition focus:border-[rgb(0,196,140)] focus:bg-white"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm text-[rgb(66,123,101)]">
+            <label className="flex flex-col gap-2 text-sm text-[rgb(66,123,101)]">
               Date de fin
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-lg border border-[rgba(12,74,56,0.2)] px-3 py-2 outline-none transition focus:border-[rgb(0,196,140)]"
+                className="rounded-xl border border-[rgba(12,74,56,0.12)] bg-[rgb(248,252,250)] px-4 py-3 outline-none transition focus:border-[rgb(0,196,140)] focus:bg-white"
               />
             </label>
           </div>
-        </div>
+        </article>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-4 sm:p-6 shadow-[0_8px_28px_rgba(63,74,126,0.08)]">
-            <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Evolution journaliere</h3>
-            <p className="mt-1 text-sm text-[rgb(66,123,101)]">Nombre de dechets collectes par jour.</p>
-            <div className="mt-4 h-[300px] w-full min-w-0">
+          <article className={`${cardClass} p-6 sm:p-8`}>
+            <h3 className="text-lg font-medium text-[rgb(12,74,56)]">Évolution journalière</h3>
+            <p className="mt-1 text-sm text-[rgb(66,123,101)]">
+              Nombre de déchets collectés par jour.
+            </p>
+            <div className="mt-6 h-[320px] w-full min-w-0">
               {dailySeries.length === 0 ? (
                 <p className="flex h-full items-center justify-center text-sm text-[rgb(66,123,101)]">
-                  Aucune donnee pour cette periode.
+                  Aucune donnée pour cette période.
                 </p>
               ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dailySeries}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.12)" />
-                  <XAxis dataKey="date" tick={{ fill: '#2E5D4B', fontSize: 12 }} />
-                  <YAxis allowDecimals={false} tick={{ fill: '#2E5D4B', fontSize: 12 }} />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="count"
-                    stroke="#00C48C"
-                    strokeWidth={3}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                    animationDuration={700}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dailySeries} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.08)" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fill: '#427B65', fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fill: '#427B65', fontSize: 12 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#00C48C"
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: '#00C48C', strokeWidth: 0 }}
+                      activeDot={{ r: 6, fill: '#00A67E' }}
+                      animationDuration={700}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               )}
             </div>
           </article>
 
-          <article className="rounded-2xl border border-[rgba(12,74,56,0.1)] bg-white p-4 sm:p-6 shadow-[0_8px_28px_rgba(63,74,126,0.08)]">
-            <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Repartition par type</h3>
-            <p className="mt-1 text-sm text-[rgb(66,123,101)]">Plastique, papier, verre, metal, etc.</p>
-            <div className="mt-4 h-[300px] w-full min-w-0">
+          <article className={`${cardClass} p-6 sm:p-8`}>
+            <h3 className="text-lg font-medium text-[rgb(12,74,56)]">Répartition par type</h3>
+            <p className="mt-1 text-sm text-[rgb(66,123,101)]">
+              Plastique, verre, papier, métal et autres catégories.
+            </p>
+            <div className="mt-6 h-[320px] w-full min-w-0">
               {typeSeries.length === 0 ? (
                 <p className="flex h-full items-center justify-center text-sm text-[rgb(66,123,101)]">
-                  Aucune donnee pour cette periode.
+                  Aucune donnée pour cette période.
                 </p>
               ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                {distributionMode === 'bar' ? (
-                  <BarChart data={typeSeries}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.12)" />
-                    <XAxis dataKey="type" tick={{ fill: '#2E5D4B', fontSize: 12 }} />
-                    <YAxis allowDecimals={false} tick={{ fill: '#2E5D4B', fontSize: 12 }} />
-                    <Tooltip />
-                    <Bar dataKey="count" radius={[8, 8, 0, 0]} animationDuration={700}>
-                      {typeSeries.map((entry: TypePoint, index) => (
-                        <Cell key={`${entry.type}-${index}`} fill={chartColors[index % chartColors.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                ) : (
-                  <PieChart>
-                    <Tooltip />
-                    <Pie
-                      data={typeSeries}
-                      dataKey="count"
-                      nameKey="type"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      label
-                      animationDuration={700}
-                    >
-                      {typeSeries.map((entry: TypePoint, index) => (
-                        <Cell key={`${entry.type}-${index}`} fill={chartColors[index % chartColors.length]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                )}
-              </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                  {distributionMode === 'bar' ? (
+                    <BarChart data={typeSeries} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(12,74,56,0.08)" vertical={false} />
+                      <XAxis
+                        dataKey="type"
+                        tick={{ fill: '#427B65', fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        allowDecimals={false}
+                        tick={{ fill: '#427B65', fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip content={<ChartTooltip />} />
+                      <Bar dataKey="count" radius={[10, 10, 0, 0]} animationDuration={700}>
+                        {typeSeries.map((entry: TypePoint, index) => (
+                          <Cell
+                            key={`${entry.type}-${index}`}
+                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  ) : (
+                    <PieChart>
+                      <Tooltip content={<ChartTooltip />} />
+                      <Pie
+                        data={typeSeries}
+                        dataKey="count"
+                        nameKey="type"
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={52}
+                        outerRadius={100}
+                        paddingAngle={3}
+                        animationDuration={700}
+                      >
+                        {typeSeries.map((entry: TypePoint, index) => (
+                          <Cell
+                            key={`${entry.type}-${index}`}
+                            fill={CHART_COLORS[index % CHART_COLORS.length]}
+                            stroke="white"
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  )}
+                </ResponsiveContainer>
               )}
             </div>
           </article>
         </div>
 
-        {loading ? <p className="text-center text-sm text-[rgb(66,123,101)]">Chargement des statistiques...</p> : null}
+        {loading ? (
+          <p className="text-center text-sm text-[rgb(66,123,101)]">Chargement des statistiques…</p>
+        ) : null}
       </div>
     </section>
   )

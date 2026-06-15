@@ -1,9 +1,9 @@
-﻿const gradientB =
-  'linear-gradient(90deg, rgb(0,196,140), rgb(0,227,163) 50%, rgb(152,244,76))'
+﻿import { GRADIENT_CARD, SECTION_PADDING, cardClass, cardHoverClass } from '../lib/theme'
+import { SectionHeader } from './ui/SectionHeader'
 
 function HistoryChipIcon() {
   return (
-    <svg width="19" height="18" viewBox="0 0 17 16" fill="none" aria-hidden>
+    <svg width="18" height="18" viewBox="0 0 17 16" fill="none" aria-hidden>
       <path
         d="M8.5 2.35C7.85 1.45 6.65 1.05 5.55 1.55C4.35 2.1 3.85 3.35 4.2 4.55C4.55 5.65 8.5 9.15 8.5 9.15C8.5 9.15 12.45 5.65 12.8 4.55C13.15 3.35 12.65 2.1 11.45 1.55C10.35 1.05 9.15 1.45 8.5 2.35Z"
         fill="rgb(0,227,163)"
@@ -31,37 +31,31 @@ function StoryCard({
 }) {
   return (
     <article
-      className={`grid overflow-hidden rounded-[26px] border border-[rgba(0,166,126,0.2)] bg-[linear-gradient(135deg,rgba(220,245,255,0.85),rgba(255,255,255,0.96))] shadow-[0_8px_28px_rgba(63,74,126,0.09)] lg:grid-cols-2 ${
+      className={`grid overflow-hidden rounded-3xl border border-[rgba(12,74,56,0.08)] shadow-[0_4px_24px_rgba(12,74,56,0.06)] lg:grid-cols-2 ${cardHoverClass} ${
         reverse ? 'lg:[&>*:first-child]:order-2' : ''
       }`}
+      style={{ background: GRADIENT_CARD }}
     >
-      <div className="flex items-center justify-center p-4 sm:p-6">
-        <div className="flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white p-2 sm:min-h-[320px]">
+      <div className="flex items-center justify-center p-5 sm:p-6">
+        <div className="flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden rounded-2xl border border-[rgba(12,74,56,0.06)] bg-white p-3 sm:min-h-[300px]">
           <img
             src={image}
             alt={imageAlt}
-            className="h-full max-h-[420px] w-full object-contain"
+            className="h-full max-h-[400px] w-full object-contain"
             loading="lazy"
           />
         </div>
       </div>
 
-      <div className="flex flex-col justify-center px-6 py-7 sm:px-8 sm:py-10">
+      <div className="flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-10">
         <h3
-          className="font-medium leading-tight"
-          style={{
-            fontSize: 'clamp(28px, 2.2vw, 44px)',
-            fontWeight: 500,
-            backgroundImage: gradientB,
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
+          className="font-medium leading-tight gradient-text"
+          style={{ fontSize: 'clamp(24px, 2.2vw, 36px)', fontWeight: 500 }}
         >
           {title}
         </h3>
-        <div className="my-4 h-px w-full" style={{ background: 'rgba(0, 166, 126, 0.35)' }} />
-        <div className="space-y-5 text-[rgb(26,11,84)]" style={{ fontSize: 'clamp(15px, 1.1vw, 22px)' }}>
+        <div className="my-4 h-px w-full bg-[rgba(12,74,56,0.1)]" />
+        <div className="space-y-4 text-[rgb(66,123,101)]" style={{ fontSize: 'clamp(15px, 1.1vw, 17px)' }}>
           {paragraphs.map((paragraph) => (
             <p key={paragraph} className="m-0 leading-relaxed">
               {paragraph}
@@ -96,35 +90,24 @@ function ConstructionGallery() {
   const [featured, ...others] = photos
 
   return (
-    <article className="overflow-hidden rounded-[26px] border border-[rgba(0,166,126,0.2)] bg-[linear-gradient(135deg,rgba(220,245,255,0.85),rgba(255,255,255,0.96))] p-6 shadow-[0_8px_28px_rgba(63,74,126,0.09)] sm:p-8">
-      <div className="mx-auto max-w-3xl text-center">
+    <article className={`${cardClass} p-6 sm:p-8`}>
+      <div className="mx-auto max-w-2xl text-center">
         <h3
-          className="font-medium leading-tight"
-          style={{
-            fontSize: 'clamp(26px, 2.2vw, 40px)',
-            fontWeight: 500,
-            backgroundImage: gradientB,
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
+          className="font-medium leading-tight gradient-text"
+          style={{ fontSize: 'clamp(24px, 2.2vw, 34px)', fontWeight: 500 }}
         >
           Construction de la maquette
         </h3>
-        <div
-          className="mx-auto my-4 h-px w-full max-w-[280px]"
-          style={{ background: 'rgba(0, 166, 126, 0.35)' }}
-        />
-        <p
-          className="m-0 leading-relaxed text-[rgb(26,11,84)]"
-          style={{ fontSize: 'clamp(15px, 1.1vw, 18px)' }}
-        >
+        <div className="mx-auto my-4 h-px w-full max-w-[200px] bg-[rgba(12,74,56,0.1)]" />
+        <p className="m-0 leading-relaxed text-[rgb(66,123,101)]" style={{ fontSize: 'clamp(15px, 1.1vw, 17px)' }}>
           Quelques photos prises pendant l&apos;assemblage : structure, électronique et mécanique
-          de tri. Chaque étape nous rapproche d&apos;un prototype fonctionnel.
+          de tri.
         </p>
       </div>
 
-      <figure className="group mx-auto mt-8 max-w-3xl overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white shadow-[0_4px_24px_rgba(0,60,45,0.06)] transition-transform duration-300 hover:-translate-y-1">
+      <figure
+        className={`group mx-auto mt-8 max-w-3xl overflow-hidden rounded-2xl border border-[rgba(12,74,56,0.06)] bg-white shadow-[0_4px_20px_rgba(12,74,56,0.05)] ${cardHoverClass}`}
+      >
         <div className="overflow-hidden bg-[rgb(248,252,250)]">
           <img
             src={featured.src}
@@ -142,7 +125,7 @@ function ConstructionGallery() {
         {others.map((photo) => (
           <figure
             key={photo.src}
-            className="group overflow-hidden rounded-[20px] border border-[rgba(0,166,126,0.15)] bg-white shadow-[0_4px_24px_rgba(0,60,45,0.06)] transition-transform duration-300 hover:-translate-y-1"
+            className={`group overflow-hidden rounded-2xl border border-[rgba(12,74,56,0.06)] bg-white shadow-[0_4px_20px_rgba(12,74,56,0.05)] ${cardHoverClass}`}
           >
             <div className="aspect-[4/5] overflow-hidden bg-[rgb(248,252,250)]">
               <img
@@ -166,23 +149,17 @@ export function FreedomSection() {
   return (
     <section
       id="our-method"
-      className="bg-white"
-      style={{ padding: 'clamp(56px, 7vw, 110px) clamp(16px, 3.4vw, 46px)' }}
+      className="scroll-mt-28 bg-white"
+      style={{ padding: SECTION_PADDING }}
     >
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-10 sm:gap-12">
-        <header className="flex flex-col items-center gap-5 text-center">
-          <div
-            className="inline-flex items-center gap-2 rounded-full bg-[rgb(236,251,244)] text-[rgb(12,74,56)]"
-            style={{
-              padding: 'clamp(8px, 0.85vw, 13px) clamp(12px, 1.25vw, 20px)',
-              fontSize: 'clamp(14px, 1.1vw, 18px)',
-              fontWeight: 500,
-            }}
-          >
-            <HistoryChipIcon />
-            Histoire du projet
-          </div>
-        </header>
+      <div className="section-container flex flex-col gap-10 sm:gap-12">
+        <SectionHeader
+          badge="Histoire du projet"
+          badgeIcon={<HistoryChipIcon />}
+          title="Notre parcours et"
+          titleAccent="notre prototype"
+          description="De la reprise du projet par notre promotion à la construction progressive de la maquette connectée."
+        />
 
         <StoryCard
           title="Un projet qui traverse les promotions"

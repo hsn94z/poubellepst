@@ -17,10 +17,10 @@ function StatsFallback() {
   return (
     <section
       id="stats"
-      className="bg-[rgb(246,255,251)]"
-      style={{ padding: 'clamp(56px, 7vw, 110px) clamp(16px, 3.4vw, 46px)' }}
+      className="bg-[rgb(244,255,250)]"
+      style={{ padding: 'clamp(80px, 10vw, 128px) clamp(20px, 4vw, 48px)' }}
     >
-      <p className="text-center text-sm text-[rgb(66,123,101)]">Chargement des statistiques...</p>
+      <p className="text-center text-sm text-[rgb(66,123,101)]">Chargement des statistiques…</p>
     </section>
   )
 }
