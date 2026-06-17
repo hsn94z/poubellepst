@@ -185,6 +185,18 @@ export function FreedomSection() {
         />
 
         <ConstructionGallery />
+
+        <StoryCard
+          title="Finalisation du prototype"
+          image="/history/finalisation-poubelle.png"
+          imageAlt="Prototype finalisé de la poubelle connectée avec webcam et sacs de tri"
+          reverse
+          paragraphs={[
+            "Après plusieurs phases d'assemblage et de tests, notre prototype est désormais quasi finalisé. La structure est stable, les trappes de tri sont opérationnelles et les sacs de collecte sont en place sous chaque compartiment.",
+            "Une webcam est montée au-dessus du plateau pour capturer les déchets déposés. Le script YOLOv8, exécuté sur un PC, analyse l'image en temps réel et envoie la catégorie détectée à la Raspberry Pi via le réseau.",
+            "La Raspberry Pi reçoit ce signal et actionne le servomoteur correspondant pour ouvrir la bonne trappe — Plastique, Verre ou Reste. L'ensemble forme un système de tri connecté fonctionnel de bout en bout.",
+          ]}
+        />
       </div>
     </section>
   )

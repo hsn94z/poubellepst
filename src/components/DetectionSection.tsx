@@ -1,6 +1,7 @@
 import { Download } from 'lucide-react'
-import { detectionItems } from '../data/detectionItems'
+import { detectionItems, projectCodePanels } from '../data/detectionItems'
 import { GRADIENT_BRAND, GRADIENT_CARD, SECTION_PADDING, cardHoverClass } from '../lib/theme'
+import { CodePanel } from './CodePanel'
 import { SectionHeader } from './ui/SectionHeader'
 
 function DetectionChipIcon() {
@@ -112,7 +113,7 @@ export function DetectionSection() {
           badgeIcon={<DetectionChipIcon />}
           title="Nos scripts de"
           titleAccent="détection d'objets"
-          description="Chaque carte présente un exemple visuel de détection et le fichier de code associé, prêt à être téléchargé."
+          description="Scripts Python du projet : détection IA sur PC et pilotage des trappes sur Raspberry Pi."
         />
 
         {detectionItems.length === 0 ? (
@@ -140,6 +141,28 @@ export function DetectionSection() {
             ))}
           </div>
         )}
+
+        <div className="flex flex-col gap-6">
+          <div className="text-center">
+            <h3 className="text-xl font-medium text-[rgb(12,74,56)]">Code source du projet</h3>
+            <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-[rgb(66,123,101)]">
+              Architecture en deux parties : le PC analyse les déchets via YOLOv8 et envoie la
+              catégorie à la Raspberry Pi, qui ouvre la trappe correspondante.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {projectCodePanels.map((panel) => (
+              <CodePanel
+                key={panel.fileUrl}
+                title={panel.title}
+                subtitle={panel.subtitle}
+                platform={panel.platform}
+                fileUrl={panel.fileUrl}
+                fileName={panel.fileName}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )

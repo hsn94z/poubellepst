@@ -1,136 +1,123 @@
-import { ServiceCard } from './ServiceCard'
+import { Cpu, Leaf, ScanEye, Workflow } from 'lucide-react'
 import { GRADIENT_BRAND } from '../lib/theme'
+import { FeatureCard } from './FeatureCard'
 
-const bgUrl =
-  'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260418_120332_3b24257a-afe6-48ca-875f-78147370f403.png&w=1280&q=85'
+const features = [
+  {
+    label: 'Détection',
+    icon: <ScanEye size={22} strokeWidth={1.75} />,
+    title: 'Reconnaissance intelligente des déchets',
+    description:
+      'Caméra et modèle YOLOv8 pour identifier Plastique, Verre, Métal et Carton en temps réel.',
+  },
+  {
+    label: 'Matériel',
+    icon: <Cpu size={22} strokeWidth={1.75} />,
+    title: 'Architecture embarquée complète',
+    description:
+      'Raspberry Pi, servomoteurs, clavier 4×4 et capteurs réunis dans un prototype modulaire.',
+  },
+  {
+    label: 'Automatisation',
+    icon: <Workflow size={22} strokeWidth={1.75} />,
+    title: 'Tri automatisé de bout en bout',
+    description:
+      'Le PC envoie la catégorie détectée à la Pi, qui ouvre automatiquement la trappe adaptée.',
+  },
+  {
+    label: 'Impact',
+    icon: <Leaf size={22} strokeWidth={1.75} />,
+    title: 'Une démarche durable et pédagogique',
+    description:
+      'Projet PST à l\'ESIEA visant à sensibiliser et améliorer les pratiques de tri des déchets.',
+  },
+] as const
 
-const accent = 'rgb(0, 227, 163)'
-
-function IconPlanning() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-      <circle cx="8" cy="8" r="6" fill="none" stroke={accent} strokeWidth="1.25" />
-    </svg>
-  )
-}
-
-function IconProcurement() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-      <circle cx="8" cy="8" r="6" fill="none" stroke={accent} strokeWidth="1.25" />
-      <g fill={accent} transform="matrix(-1 0 0 1 16 0)">
-        <circle cx="12" cy="5.5" r="2" />
-        <circle cx="12.5" cy="8" r="3" />
-        <circle cx="12" cy="11" r="4" />
-      </g>
-    </svg>
-  )
-}
-
-function IconLogistics() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-      <circle cx="8" cy="8" r="6" fill="none" stroke={accent} strokeWidth="1.25" />
-      <g fill={accent} transform="matrix(-1 0 0 1 16 0)">
-        <circle cx="11.5" cy="5" r="2" />
-        <circle cx="12.5" cy="8" r="3" />
-        <circle cx="11.5" cy="11.5" r="4" />
-      </g>
-    </svg>
-  )
-}
-
-function IconCommissioning() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-      <circle cx="8" cy="8" r="6" fill="none" stroke={accent} strokeWidth="1.25" />
-      <g fill={accent} transform="matrix(-1 0 0 1 16 0)">
-        <circle cx="12" cy="5.5" r="2" />
-        <circle cx="13" cy="8.5" r="3" />
-        <circle cx="12" cy="11.5" r="4" />
-      </g>
-    </svg>
-  )
-}
+const highlights = [
+  { value: 'YOLOv8', label: 'Détection IA' },
+  { value: '3', label: 'Compartiments' },
+  { value: 'Temps réel', label: 'Statistiques' },
+] as const
 
 export function TrustedSection() {
   return (
     <section
       id="what-we-build"
-      className="relative"
+      className="relative -mt-20 overflow-hidden rounded-t-[40px] bg-white sm:-mt-24 sm:rounded-t-[48px]"
       style={{
-        backgroundImage: `url("${bgUrl}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundColor: 'rgba(5, 46, 35, 0.78)',
-        backgroundBlendMode: 'multiply',
-        padding: 'clamp(100px, 12vw, 160px) clamp(20px, 4vw, 48px)',
+        paddingTop: 'clamp(88px, 10vw, 120px)',
+        paddingBottom: 'clamp(80px, 10vw, 128px)',
+        paddingLeft: 'clamp(20px, 4vw, 48px)',
+        paddingRight: 'clamp(20px, 4vw, 48px)',
       }}
     >
-      <div className="section-container flex flex-col items-center gap-16">
-        <header className="flex max-w-3xl flex-col items-center gap-5 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-64"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 60% at 50% 0%, rgba(0,196,140,0.1), transparent 70%)',
+        }}
+      />
+
+      <div className="section-container relative flex flex-col items-center gap-14">
+        <header className="flex max-w-3xl flex-col items-center gap-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(12,74,56,0.08)] bg-[rgb(248,252,250)] px-4 py-2 text-sm font-medium text-[rgb(12,74,56)]">
+            <span className="h-2 w-2 rounded-full bg-[rgb(0,196,140)]" />
             Projet PST · ESIEA
           </div>
+
           <h2
-            className="font-medium leading-tight text-white"
-            style={{ fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 500 }}
+            className="font-medium leading-[1.15] text-[rgb(12,74,56)]"
+            style={{ fontSize: 'clamp(32px, 4.5vw, 56px)', fontWeight: 500 }}
           >
-            Poubelle intelligente,
-            <br />
-            <span
-              style={{
-                backgroundImage: GRADIENT_BRAND,
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              tri connecté pour un futur durable.
-            </span>
+            Poubelle intelligente,{' '}
+            <span className="gradient-text">tri connecté pour un futur durable.</span>
           </h2>
+
           <p
-            className="max-w-2xl leading-relaxed text-[rgb(178,233,214)]"
-            style={{ fontSize: 'clamp(15px, 1.2vw, 18px)' }}
+            className="max-w-2xl leading-relaxed text-[rgb(66,123,101)]"
+            style={{ fontSize: 'clamp(16px, 1.2vw, 18px)' }}
           >
             Dans le cadre de notre Projet Scientifique et Technique en 2e année à l&apos;ESIEA,
             nous allions innovation technologique et démarche durable pour optimiser le tri des
             déchets.
           </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            {highlights.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-[rgba(12,74,56,0.08)] bg-[rgb(248,252,250)] px-5 py-3 text-center"
+              >
+                <p
+                  className="font-medium gradient-text"
+                  style={{ fontSize: 'clamp(18px, 1.5vw, 22px)' }}
+                >
+                  {item.value}
+                </p>
+                <p className="mt-0.5 text-xs text-[rgb(66,123,101)]">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </header>
 
-        <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <ServiceCard
-            label="Détection"
-            icon={<IconPlanning />}
-            title={'Reconnaissance rapide\ndes déchets via capteurs\net intelligence artificielle.'}
-            bullets={['Classification automatisée', 'Analyse en temps réel']}
-          />
-          <ServiceCard
-            label="Matériel"
-            icon={<IconProcurement />}
-            title={'Microcontrôleur,\ncapteurs et composants\nintégrés dans un système unique.'}
-            bullets={['Architecture embarquée', 'Montage évolutif']}
-          />
-          <ServiceCard
-            label="Automatisation"
-            icon={<IconLogistics />}
-            title={'Tri intelligent des\ndéchets avec orientation\nautomatique des flux.'}
-            bullets={['Moins d\'erreurs de tri', 'Flux plus propres']}
-          />
-          <ServiceCard
-            label="Impact"
-            icon={<IconCommissioning />}
-            title="Sensibiliser les utilisateurs à des pratiques plus responsables."
-            bullets={['Démarche durable', 'Usage pédagogique']}
-          />
+        <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+          {features.map((feature) => (
+            <FeatureCard
+              key={feature.label}
+              icon={feature.icon}
+              label={feature.label}
+              title={feature.title}
+              description={feature.description}
+            />
+          ))}
         </div>
-      </div>
 
-      <div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 h-32"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgb(255,255,255))' }}
-      />
+        <div
+          className="h-px w-full max-w-3xl"
+          style={{ background: GRADIENT_BRAND, opacity: 0.35 }}
+        />
+      </div>
     </section>
   )
 }
