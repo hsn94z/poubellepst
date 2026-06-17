@@ -36,10 +36,10 @@ export default function App() {
       <HardwareSection />
       <FreedomSection />
       <DetectionSection />
-      <MembersSection />
       <Suspense fallback={<StatsFallback />}>
         <StatisticsSection />
       </Suspense>
+      <MembersSection />
     </main>
   )
 }

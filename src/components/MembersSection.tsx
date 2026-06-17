@@ -10,27 +10,27 @@ type Member = {
 const members: Member[] = [
   {
     name: 'Salim',
-    role: 'Responsable IA',
+    role: 'Responsable Intelligence Artificielle',
     photo: '/salilm.webp',
   },
   {
     name: 'Ramy',
-    role: 'Responsable IA',
+    role: 'Responsable Intelligence Artificielle',
     photo: '/Image.jpg',
   },
   {
     name: 'Hassan',
-    role: 'Développement site web et Responsable Matériel',
+    role: 'Développement web et Responsable Matériel',
     photo: '/hassan.webp',
   },
   {
     name: 'Maxime',
-    role: 'Développement site web et Responsable Matériel',
+    role: 'Développement web et Responsable Matériel',
     photo: '/maxime.webp',
   },
   {
     name: 'Gaspard',
-    role: 'Chef de projet (actuel) et Responsable IA / Matériel',
+    role: 'Chef de projet et Responsable IA / Matériel',
     photo: '/gaspard.webp',
   },
 ]
@@ -38,16 +38,16 @@ const members: Member[] = [
 export function MembersSection() {
   return (
     <section
-      id="contact"
-      className="scroll-mt-28 bg-white"
+      id="equipe"
+      className="scroll-mt-28 bg-[rgb(248,252,250)]"
       style={{ padding: SECTION_PADDING }}
     >
       <div className="section-container flex flex-col gap-12">
         <SectionHeader
-          badge="Équipe du projet"
-          title="Les membres du"
+          badge="Qui sommes-nous"
+          title="L'équipe du"
           titleAccent="projet"
-          description="Une équipe pluridisciplinaire réunissant IA, matériel et développement web autour d'un même objectif."
+          description="Une équipe pluridisciplinaire mobilisée autour de l'intelligence artificielle, du matériel embarqué et du développement web."
         />
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">

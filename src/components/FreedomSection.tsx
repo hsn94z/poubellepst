@@ -166,9 +166,9 @@ export function FreedomSection() {
           image="/history/projet-promotions.png"
           imageAlt="Prototype de poubelle connectée dans un atelier"
           paragraphs={[
-            "Cette poubelle connectée n'est pas née par hasard. Elle a été imaginée et développée l'an dernier par les étudiants de 2A, avec l'envie de proposer une solution innovante et utile pour la gestion des déchets.",
-            "En découvrant ce projet, nous avons été immédiatement séduits par l'idée et son potentiel. Plutôt que de repartir de zéro, nous avons choisi de reprendre ce travail, de le comprendre, puis de le faire évoluer.",
-            "Aujourd'hui, notre objectif est clair : améliorer, moderniser et pousser ce projet encore plus loin, en y apportant nos idées, nos compétences et notre vision.",
+            "Ce projet s'inscrit dans la continuité d'un travail initié par les étudiants de 2e année, avec l'ambition de proposer une solution innovante au service de la gestion des déchets.",
+            "Forts de cette base, nous avons choisi d'en assurer la reprise afin de l'analyser, de la consolider et d'en favoriser l'évolution au sein de notre promotion.",
+            "Notre objectif consiste à enrichir ce dispositif par de nouvelles compétences, de nouvelles approches techniques et une vision renouvelée de son déploiement.",
           ]}
         />
 
@@ -178,23 +178,23 @@ export function FreedomSection() {
           image="/history/prototype-dev.png"
           imageAlt="Schéma de structure du prototype de poubelle"
           paragraphs={[
-            "Cette maquette représente un prototype en cours de réalisation, conçu comme un objectif de travail tout au long du projet. Elle ne correspond pas à une version finale, mais à une base sur laquelle nous expérimentons, testons et améliorons différentes solutions techniques.",
-            "L'objectif de ce prototype est de valider les principes de fonctionnement de la poubelle connectée : l'intégration des composants, l'organisation de la structure et la faisabilité du système de tri. Il intègre notamment une caméra, un moteur et un bloc central contenant un Raspberry Pi, qui serviront à piloter l'ensemble du dispositif.",
-            "Ce prototype évolue progressivement au fil de notre travail. Chaque étape nous permet d'identifier des améliorations possibles et d'affiner notre approche afin d'aboutir, à terme, à une version plus fiable, plus performante et plus proche d'une utilisation réelle.",
+            "Cette maquette constitue un prototype de travail, conçu pour accompagner l'ensemble du projet. Elle ne constitue pas une version définitive, mais une base d'expérimentation, de tests et d'améliorations successives.",
+            "Elle vise à valider les principes de fonctionnement de la poubelle connectée : intégration des composants, organisation de la structure et faisabilité du système de tri. Elle associe notamment une caméra, des actionneurs et un Raspberry Pi chargé de piloter l'ensemble du dispositif.",
+            "Ce prototype évolue de manière progressive. Chaque étape permet d'identifier des axes d'amélioration et d'affiner notre démarche en vue d'une version plus fiable, plus performante et adaptée à un usage concret.",
           ]}
         />
 
         <ConstructionGallery />
 
         <StoryCard
-          title="Finalisation du prototype"
+          title="Achèvement du prototype"
           image="/history/finalisation-poubelle.png"
-          imageAlt="Prototype finalisé de la poubelle connectée avec webcam et sacs de tri"
+          imageAlt="Prototype abouti de la poubelle connectée avec webcam et sacs de tri"
           reverse
           paragraphs={[
-            "Après plusieurs phases d'assemblage et de tests, notre prototype est désormais quasi finalisé. La structure est stable, les trappes de tri sont opérationnelles et les sacs de collecte sont en place sous chaque compartiment.",
-            "Une webcam est montée au-dessus du plateau pour capturer les déchets déposés. Le script YOLOv8, exécuté sur un PC, analyse l'image en temps réel et envoie la catégorie détectée à la Raspberry Pi via le réseau.",
-            "La Raspberry Pi reçoit ce signal et actionne le servomoteur correspondant pour ouvrir la bonne trappe — Plastique, Verre ou Reste. L'ensemble forme un système de tri connecté fonctionnel de bout en bout.",
+            "Après plusieurs phases d'assemblage et de validation, le prototype atteint une maturité technique avancée. La structure est stabilisée, les trappes de tri sont opérationnelles et les dispositifs de collecte sont intégrés sous chaque compartiment.",
+            "Une webcam est positionnée au-dessus du plateau afin de capturer les déchets déposés. Le script YOLOv8, exécuté sur un ordinateur dédié, analyse les images en temps réel et transmet la catégorie détectée à la Raspberry Pi via le réseau.",
+            "La Raspberry Pi reçoit ce signal et actionne le servomoteur correspondant afin d'ouvrir la trappe adaptée — Plastique, Verre ou Métal. L'ensemble constitue un système de tri connecté fonctionnel de bout en bout.",
           ]}
         />
       </div>

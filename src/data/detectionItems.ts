@@ -20,7 +20,7 @@ export const detectionItems: DetectionItem[] = [
     id: 'detection-yolo-pc',
     title: 'Détection YOLOv8 (PC)',
     description:
-      "Script exécuté sur le PC : capture caméra, détection YOLOv8, catégorisation des déchets (Plastique, Verre, Métal, Carton/Papier) et envoi du signal à la Raspberry Pi via socket.",
+      "Script exécuté sur le PC : capture caméra, détection YOLOv8, catégorisation des déchets (Plastique, Verre, Métal) et envoi du signal à la Raspberry Pi via socket.",
     previewImage: '/detection/images/detection-verre.png',
     previewAlt: 'Exemple de détection Verre avec boîte englobante',
     downloadUrl: '/detection/codes/detection_yolo_pc.py',

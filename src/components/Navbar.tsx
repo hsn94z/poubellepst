@@ -1,6 +1,5 @@
 import { Menu, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { ContactButton } from './ContactButton'
 
 const navLinks = [
   { label: 'Accueil', href: '#hero' },
@@ -8,7 +7,7 @@ const navLinks = [
   { label: 'Histoire', href: '#our-method' },
   { label: 'Détection', href: '#detection' },
   { label: 'Statistiques', href: '#stats' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Équipe', href: '#equipe' },
 ] as const
 
 type NavbarProps = {
@@ -68,24 +67,19 @@ export function Navbar({ revealProgress = 1 }: NavbarProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden md:block">
-            <ContactButton />
-          </div>
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-[rgb(240,250,245)] md:hidden"
-            aria-expanded={mobileOpen}
-            aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-            onClick={() => setMobileOpen((o) => !o)}
-          >
-            {mobileOpen ? (
-              <X size={22} className="text-[rgb(12,74,56)]" />
-            ) : (
-              <Menu size={22} className="text-[rgb(12,74,56)]" />
-            )}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-[rgb(240,250,245)] md:hidden"
+          aria-expanded={mobileOpen}
+          aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          onClick={() => setMobileOpen((o) => !o)}
+        >
+          {mobileOpen ? (
+            <X size={22} className="text-[rgb(12,74,56)]" />
+          ) : (
+            <Menu size={22} className="text-[rgb(12,74,56)]" />
+          )}
+        </button>
       </nav>
 
       {mobileOpen ? (
@@ -101,9 +95,6 @@ export function Navbar({ revealProgress = 1 }: NavbarProps) {
                 {label}
               </a>
             ))}
-            <div className="flex w-full items-center justify-center gap-3 pt-3">
-              <ContactButton className="flex-1 [&>span]:w-full [&>span]:text-center" />
-            </div>
           </div>
         </div>
       ) : null}

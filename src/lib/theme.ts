@@ -6,7 +6,9 @@ export const GRADIENT_CARD =
 
 export const SECTION_PADDING = 'clamp(80px, 10vw, 128px) clamp(20px, 4vw, 48px)'
 
-export const CHART_COLORS = ['#00C48C', '#00D4AA', '#8EF46B', '#4B88FF', '#7B6DFF', '#FF9E64']
+export const CHART_COLORS = ['#00C48C', '#00D4AA', '#8EF46B']
+
+export const WASTE_TYPE_ORDER = ['plastique', 'verre', 'métal'] as const
 
 export const cardClass =
   'rounded-3xl border border-[rgba(12,74,56,0.08)] bg-white shadow-[0_4px_24px_rgba(12,74,56,0.06)]'

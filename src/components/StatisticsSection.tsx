@@ -17,6 +17,7 @@ import {
   buildDailySeries,
   buildSummary,
   buildTypeSeries,
+  displayWasteType,
   filterByDateRange,
   type TypePoint,
   type WasteRecord,
@@ -26,8 +27,8 @@ import { CHART_COLORS, SECTION_PADDING, cardClass, cardHoverClass } from '../lib
 import { SectionHeader } from './ui/SectionHeader'
 
 function prettyType(type: string): string {
-  if (!type) return '—'
-  return `${type[0].toUpperCase()}${type.slice(1)}`
+  if (!type || type === '—' || type === '-') return '—'
+  return displayWasteType(type.toLowerCase()) || type
 }
 
 function prettyRecord(record: WasteRecord | null): string {
@@ -212,7 +213,7 @@ export function StatisticsSection() {
           <article className={`${cardClass} p-6 sm:p-8`}>
             <h3 className="text-lg font-medium text-[rgb(12,74,56)]">Répartition par type</h3>
             <p className="mt-1 text-sm text-[rgb(66,123,101)]">
-              Plastique, verre, papier, métal et autres catégories.
+              Répartition entre Plastique, Verre et Métal.
             </p>
             <div className="mt-6 h-[320px] w-full min-w-0">
               {typeSeries.length === 0 ? (
@@ -258,6 +259,7 @@ export function StatisticsSection() {
                         innerRadius={52}
                         outerRadius={100}
                         paddingAngle={3}
+                        label={false}
                         animationDuration={700}
                       >
                         {typeSeries.map((entry: TypePoint, index) => (

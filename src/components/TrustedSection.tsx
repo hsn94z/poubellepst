@@ -8,7 +8,7 @@ const features = [
     icon: <ScanEye size={22} strokeWidth={1.75} />,
     title: 'Reconnaissance intelligente des déchets',
     description:
-      'Caméra et modèle YOLOv8 pour identifier Plastique, Verre, Métal et Carton en temps réel.',
+      'Caméra et modèle YOLOv8 pour identifier le Plastique, le Verre et le Métal en temps réel.',
   },
   {
     label: 'Matériel',

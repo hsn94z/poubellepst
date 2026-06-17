@@ -1,3 +1,5 @@
+import { WASTE_TYPE_ORDER } from './theme'
+
 export type WasteRecord = {
   id: string
   date: string
@@ -37,8 +39,21 @@ function localTimeString(date: Date): string {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`
 }
 
-function normalizeType(rawType: string): string {
-  return rawType.trim().toLowerCase()
+function normalizeType(rawType: string): string | null {
+  const key = rawType.trim().toLowerCase()
+
+  if (key === 'plastique') return 'plastique'
+  if (key === 'verre') return 'verre'
+  if (key === 'metal' || key === 'métal' || key === 'reste') return 'métal'
+
+  return null
+}
+
+export function displayWasteType(type: string): string {
+  if (type === 'plastique') return 'Plastique'
+  if (type === 'verre') return 'Verre'
+  if (type === 'métal') return 'Métal'
+  return type
 }
 
 function toTimestamp(date: string, time: string): Date {
@@ -69,11 +84,14 @@ export function parseFirebaseOuvertures(
     const timestamp = new Date(entry.date)
     if (Number.isNaN(timestamp.getTime())) continue
 
+    const type = normalizeType(entry.categorie)
+    if (!type) continue
+
     records.push({
       id,
       date: localDateString(timestamp),
       time: localTimeString(timestamp),
-      type: normalizeType(entry.categorie),
+      type,
       timestamp,
     })
   }
@@ -91,10 +109,10 @@ export function parseWasteText(content: string): WasteRecord[] {
       if (!match) return null
 
       const [, date, time, rawType] = match
-      const type = rawType.toLowerCase()
+      const type = normalizeType(rawType)
       const timestamp = toTimestamp(date, time)
 
-      if (Number.isNaN(timestamp.getTime())) return null
+      if (!type || Number.isNaN(timestamp.getTime())) return null
 
       return {
         id: `txt-${date}-${time}-${type}-${index}`,
@@ -135,19 +153,22 @@ export function buildTypeSeries(records: WasteRecord[]): TypePoint[] {
   for (const record of records) {
     map.set(record.type, (map.get(record.type) ?? 0) + 1)
   }
-  return [...map.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([type, count]) => ({ type, count }))
+
+  return WASTE_TYPE_ORDER.filter((type) => map.has(type)).map((type) => ({
+    type: displayWasteType(type),
+    count: map.get(type) ?? 0,
+  }))
 }
 
 export function buildSummary(records: WasteRecord[]): WasteSummary {
   const typeSeries = buildTypeSeries(records)
   const today = localDateString(new Date())
   const lastRecord = records.length > 0 ? records[records.length - 1] : null
+  const mostFrequent = [...typeSeries].sort((a, b) => b.count - a.count)[0]?.type ?? '—'
 
   return {
     total: records.length,
-    mostFrequentType: typeSeries[0]?.type ?? '-',
+    mostFrequentType: mostFrequent,
     lastRecord,
     todayCount: records.filter((r) => r.date === today).length,
   }
